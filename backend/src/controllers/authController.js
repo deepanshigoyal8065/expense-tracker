@@ -27,7 +27,8 @@ export const signup = async (req, res, next) => {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
       },
       token
     })
@@ -56,7 +57,8 @@ export const login = async (req, res, next) => {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
       },
       token
     })
@@ -71,7 +73,8 @@ export const getMe = async (req, res, next) => {
       user: {
         id: req.user._id,
         name: req.user.name,
-        email: req.user.email
+        email: req.user.email,
+        role: req.user.role
       }
     })
   } catch (err) {

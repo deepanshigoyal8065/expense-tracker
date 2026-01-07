@@ -1,17 +1,36 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import PropTypes from 'prop-types'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { fetchSummaryRequest } from '../redux/expense/expenseSlice'
 
-const Charts = () => {
+const Charts = ({ summary: propSummary }) => {
   const dispatch = useDispatch()
-  const { summary, currentMonth } = useSelector((state) => state.expense)
+  const { summary: reduxSummary, currentMonth } = useSelector((state) => state.expense)
+  
+  // Use prop summary if provided (for team data), otherwise use Redux summary (for personal data)
+  const summary = propSummary || reduxSummary
 
   useEffect(() => {
-    dispatch(fetchSummaryRequest(currentMonth))
-  }, [currentMonth, dispatch])
+    // Only fetch personal summary if no prop summary provided
+    if (!propSummary) {
+      dispatch(fetchSummaryRequest(currentMonth))
+    }
+  }, [currentMonth, dispatch, propSummary])
 
-  if (!summary || !summary.categories || summary.categories.length === 0) {
+  // Transform team summary format (byCategory object) to categories array if needed
+  let categories = summary?.categories || []
+  
+  // If summary has byCategory (team format), convert to categories array
+  if (summary?.byCategory && !summary?.categories) {
+    categories = Object.entries(summary.byCategory).map(([category, total]) => ({
+      category,
+      total,
+      count: 1 // We don't have count in byCategory, default to 1
+    }))
+  }
+
+  if (!summary || !categories || categories.length === 0) {
     return (
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-4 text-gray-800">Category Reports</h2>
@@ -22,12 +41,12 @@ const Charts = () => {
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658']
 
-  const pieData = summary.categories.map((cat) => ({
+  const pieData = categories.map((cat) => ({
     name: cat.category,
     value: cat.total
   }))
 
-  const barData = summary.categories.map((cat) => ({
+  const barData = categories.map((cat) => ({
     category: cat.category,
     amount: cat.total,
     count: cat.count
@@ -38,7 +57,7 @@ const Charts = () => {
       <h2 className="text-2xl font-bold mb-4 text-gray-800">Category Reports</h2>
       
       <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-        <p className="text-sm text-gray-600">Total Spending for {currentMonth}</p>
+        <p className="text-sm text-gray-600">Total Spending{propSummary ? '' : ` for ${currentMonth}`}</p>
         <p className="text-3xl font-bold text-blue-600">₹{summary.totalSpent?.toFixed(2) || '0.00'}</p>
       </div>
 
@@ -102,7 +121,7 @@ const Charts = () => {
               </tr>
             </thead>
             <tbody>
-              {summary.categories.map((cat, index) => (
+              {categories.map((cat, index) => (
                 <tr key={index} className="hover:bg-gray-50">
                   <td className="p-3 border-b">
                     <span className={`inline-block w-3 h-3 rounded-full mr-2`} style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
@@ -119,6 +138,19 @@ const Charts = () => {
       </div>
     </div>
   )
+}
+
+Charts.propTypes = {
+  summary: PropTypes.shape({
+    totalSpent: PropTypes.number,
+    categories: PropTypes.arrayOf(
+      PropTypes.shape({
+        category: PropTypes.string,
+        total: PropTypes.number,
+        count: PropTypes.number
+      })
+    )
+  })
 }
 
 export default Charts

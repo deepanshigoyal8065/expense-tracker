@@ -6,6 +6,7 @@ import { env } from './config/env.js'
 import { getRedisClient } from './config/redis.js'
 import authRoutes from './routes/authRoutes.js'
 import expenseRoutes from './routes/expenseRoutes.js'
+import teamRoutes from './routes/teamRoutes.js'
 import { errorHandler } from './middleware/errorHandler.js'
 
 const app = express()
@@ -19,6 +20,7 @@ app.use(express.json())
 app.get('/', (req, res) => res.json({ status: 'OK', service: 'Expense Tracker API' }))
 app.use('/api/auth', authRoutes)
 app.use('/api', expenseRoutes)
+app.use('/api/teams', teamRoutes)
 
 // Error handler
 app.use(errorHandler)

@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { loadUserRequest, logout } from './redux/auth/authSlice'
 import Dashboard from './pages/Dashboard'
+import Teams from './pages/Teams'
+import TeamDashboard from './pages/TeamDashboard'
 import Modal from './components/Modal'
 import LoginForm from './components/LoginForm'
 import SignupForm from './components/SignupForm'
@@ -79,10 +82,15 @@ function App() {
   }
 
   return (
-    <>
+    <Router>
       <Toast />
-      <Dashboard user={user} onLogout={handleLogout} />
-    </>
+      <Routes>
+        <Route path="/" element={<Dashboard user={user} onLogout={handleLogout} />} />
+        <Route path="/teams" element={<Teams user={user} onLogout={handleLogout} />} />
+        <Route path="/teams/:teamId" element={<TeamDashboard user={user} onLogout={handleLogout} />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   )
 }
 

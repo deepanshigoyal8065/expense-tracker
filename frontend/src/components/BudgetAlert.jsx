@@ -1,19 +1,28 @@
 import { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import PropTypes from 'prop-types'
 import { setBudgetRequest, fetchBudgetRequest, fetchAlertRequest } from '../redux/expense/expenseSlice'
 import { addToast } from '../redux/toast/toastSlice'
 
-const BudgetAlert = () => {
+const BudgetAlert = ({ totalSpent: propTotalSpent, limit: propLimit, breached: propBreached }) => {
   const dispatch = useDispatch()
-  const { budget, alert, currentMonth } = useSelector((state) => state.expense)
+  const { budget: reduxBudget, alert: reduxAlert, currentMonth } = useSelector((state) => state.expense)
   const [budgetInput, setBudgetInput] = useState('')
   const [showForm, setShowForm] = useState(false)
   const prevAlertRef = useRef(null)
 
+  // Use props if provided (for team expenses), otherwise use Redux state (for personal expenses)
+  const isTeamMode = propTotalSpent !== undefined && propLimit !== undefined
+  const budget = isTeamMode ? { limit: propLimit } : reduxBudget
+  const alert = isTeamMode ? { totalSpent: propTotalSpent, limit: propLimit, breached: propBreached } : reduxAlert
+
   useEffect(() => {
-    dispatch(fetchBudgetRequest(currentMonth))
-    dispatch(fetchAlertRequest(currentMonth))
-  }, [currentMonth, dispatch])
+    // Only fetch personal budget/alert if not in team mode
+    if (!isTeamMode) {
+      dispatch(fetchBudgetRequest(currentMonth))
+      dispatch(fetchAlertRequest(currentMonth))
+    }
+  }, [currentMonth, dispatch, isTeamMode])
 
   useEffect(() => {
     // Check if budget was just exceeded
@@ -58,15 +67,17 @@ const BudgetAlert = () => {
     <div className={`bg-white p-6 rounded-lg shadow-md transition-all ${isOverLimit ? 'animate-blink border-4 border-red-600' : ''}`}>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold text-gray-800">Monthly Budget</h2>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded transition-colors"
-        >
-          {budget ? 'Update' : 'Set'} Budget
-        </button>
+        {!isTeamMode && (
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded transition-colors"
+          >
+            {budget ? 'Update' : 'Set'} Budget
+          </button>
+        )}
       </div>
 
-      {showForm && (
+      {showForm && !isTeamMode && (
         <form onSubmit={handleSetBudget} className="mb-4 flex gap-2">
           <input
             type="number"
@@ -157,6 +168,12 @@ const BudgetAlert = () => {
       )}
     </div>
   )
+}
+
+BudgetAlert.propTypes = {
+  totalSpent: PropTypes.number,
+  limit: PropTypes.number,
+  breached: PropTypes.bool
 }
 
 export default BudgetAlert
