@@ -6,17 +6,14 @@ const AuthContext = createContext(null)
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // Load user on mount if token exists
+  // Clear any existing token on mount to ensure fresh login
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      loadUser()
-    } else {
-      setLoading(false)
-    }
+    localStorage.removeItem('token')
+    setUser(null)
+    setLoading(false)
   }, [])
 
   const loadUser = async () => {
