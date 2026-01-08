@@ -1,26 +1,20 @@
 import { getMonthlySummary } from '../services/reportService.js'
-import { getRedisClient } from '../config/redis.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
+import { getCachedOrCompute } from '../utils/cacheHelpers.js'
+import { sendSuccess, sendError } from '../utils/responseHelpers.js'
 
-const redis = getRedisClient()
-
-export const getSummary = async (req, res, next) => {
-  try {
-    const month = req.query.month
-    if (!month) {
-      return res.status(400).json({ error: 'month query param is required' })
-    }
-
-    const cacheKey = `report:${req.user._id}:${month}`
-    const cached = await redis.get(cacheKey)
-    if (cached) {
-      return res.json(JSON.parse(cached))
-    }
-
-    const summary = await getMonthlySummary(month, req.user._id)
-    await redis.set(cacheKey, JSON.stringify(summary), { EX: 60 * 15 })
-
-    res.json(summary)
-  } catch (err) {
-    next(err)
+export const getSummary = asyncHandler(async (req, res) => {
+  const month = req.query.month
+  if (!month) {
+    return sendError(res, 'month query param is required', 400)
   }
-}
+
+  const cacheKey = `report:${req.user._id}:${month}`
+  const summary = await getCachedOrCompute(
+    cacheKey,
+    () => getMonthlySummary(month, req.user._id),
+    60 * 15 // 15 minutes
+  )
+
+  sendSuccess(res, summary)
+})

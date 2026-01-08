@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
@@ -15,20 +15,23 @@ import {
   setCurrentMonth
 } from '../redux/team/teamSlice'
 import { getTeamBudget } from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
+import Header from '../components/Header'
 import TeamMemberList from '../components/TeamMemberList'
 import TeamExpenseForm from '../components/TeamExpenseForm'
 import TeamExpenseList from '../components/TeamExpenseList'
-import Charts from '../components/Charts'
 import BudgetAlert from '../components/BudgetAlert'
-import ProfileSettings from '../components/ProfileSettings'
+import LoadingSkeleton from '../components/LoadingSkeleton'
+
+const Charts = lazy(() => import('../components/Charts'))
 
 const TeamDashboard = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const { teamId } = useParams()
   const { currentTeam, teamExpenses, teamSummary, teamBudget, currentMonth } =
     useSelector((state) => state.team)
-  const { user } = useSelector((state) => state.auth)
 
   const [showExpenseForm, setShowExpenseForm] = useState(false)
   const [editingExpense, setEditingExpense] = useState(null)
@@ -36,27 +39,6 @@ const TeamDashboard = () => {
   const [budgetAmount, setBudgetAmount] = useState('')
   const [activeTab, setActiveTab] = useState('expenses')
   const [loadedBudget, setLoadedBudget] = useState(null)
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false)
-  const [showProfileSettings, setShowProfileSettings] = useState(false)
-  const dropdownRef = useRef(null)
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowProfileDropdown(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  const getInitials = (name) => {
-    if (!name) return 'U'
-    const names = name.trim().split(' ')
-    if (names.length === 1) return names[0].charAt(0).toUpperCase()
-    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase()
-  }
 
   useEffect(() => {
     if (teamId) {
@@ -148,79 +130,38 @@ const TeamDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{currentTeam?.name || 'Team'}</h1>
-              <p className="text-sm sm:text-base text-gray-600 mt-1">{currentTeam?.department || ''}</p>
-            </div>
-            <div className="flex flex-col items-stretch sm:items-end gap-3">
-              <div className="relative self-end" ref={dropdownRef}>
-                <button
-                  onMouseEnter={() => setShowProfileDropdown(true)}
-                  className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold flex items-center justify-center hover:from-blue-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
-                >
-                  {getInitials(user?.name)}
-                </button>
-                {showProfileDropdown && (
-                  <div
-                    className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50"
-                    onMouseLeave={() => setShowProfileDropdown(false)}
-                  >
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
-                      <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                      <p className="text-xs text-blue-600 font-medium mt-1">
-                        {user?.role === 'manager' ? '👔 Manager' : '👤 User'}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setShowProfileSettings(true)
-                        setShowProfileDropdown(false)
-                      }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      Profile Settings
-                    </button>
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                <button
-                  onClick={() => navigate('/teams')}
-                  className="w-full sm:w-auto px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                  <span>Back to Teams</span>
-                </button>
-                <button
-                  onClick={() => navigate('/')}
-                  className="w-full sm:w-auto px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                  </svg>
-                  <span>Dashboard</span>
-                </button>
-                <input
-                  type="month"
-                  value={currentMonth}
-                  onChange={handleMonthChange}
-                  className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                />
-              </div>
-            </div>
-          </div>
+      <Header 
+        title={currentTeam?.name || 'Team'}
+        subtitle={currentTeam?.department || ''}
+        user={user}
+      >
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <button
+            onClick={() => navigate('/teams')}
+            className="w-full sm:w-auto px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span>Back to Teams</span>
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className="w-full sm:w-auto px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </button>
+          <input
+            type="month"
+            value={currentMonth}
+            onChange={handleMonthChange}
+            className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          />
         </div>
-      </header>
+      </Header>
 
       {/* Main Content */}
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
@@ -377,7 +318,9 @@ const TeamDashboard = () => {
 
         {activeTab === 'analytics' && teamSummary && (
           <div className="space-y-6">
-            <Charts summary={teamSummary} />
+            <Suspense fallback={<LoadingSkeleton />}>
+              <Charts summary={teamSummary} />
+            </Suspense>
           </div>
         )}
 
@@ -410,12 +353,6 @@ const TeamDashboard = () => {
           </p>
         </div>
       </footer>
-
-      {/* Profile Settings Modal */}
-      <ProfileSettings
-        isOpen={showProfileSettings}
-        onClose={() => setShowProfileSettings(false)}
-      />
     </div>
   )
 }

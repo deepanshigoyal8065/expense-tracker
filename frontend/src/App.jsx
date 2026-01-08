@@ -1,37 +1,21 @@
-import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useState, lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { loadUserRequest, logout } from './redux/auth/authSlice'
-import Dashboard from './pages/Dashboard'
-import Teams from './pages/Teams'
-import TeamDashboard from './pages/TeamDashboard'
 import Modal from './components/Modal'
 import LoginForm from './components/LoginForm'
 import SignupForm from './components/SignupForm'
 import Toast from './components/Toast'
+import LoadingSkeleton from './components/LoadingSkeleton'
+import { useAuth } from './contexts/AuthContext'
+
+// Lazy load page components
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Teams = lazy(() => import('./pages/Teams'))
+const TeamDashboard = lazy(() => import('./pages/TeamDashboard'))
 
 function App() {
-  const dispatch = useDispatch()
-  const { isAuthenticated, user, loading } = useSelector((state) => state.auth)
+  const { isAuthenticated, loading } = useAuth()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authMode, setAuthMode] = useState('login') // 'login' or 'signup'
-
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      dispatch(loadUserRequest())
-    }
-  }, [dispatch])
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      setShowAuthModal(false)
-    }
-  }, [isAuthenticated])
-
-  const handleLogout = () => {
-    dispatch(logout())
-  }
 
   const handleSwitchMode = () => {
     setAuthMode((prev) => (prev === 'login' ? 'signup' : 'login'))
@@ -82,12 +66,14 @@ function App() {
   return (
     <Router>
       <Toast />
-      <Routes>
-        <Route path="/" element={<Dashboard user={user} onLogout={handleLogout} />} />
-        <Route path="/teams" element={<Teams user={user} onLogout={handleLogout} />} />
-        <Route path="/teams/:teamId" element={<TeamDashboard user={user} onLogout={handleLogout} />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<LoadingSkeleton type="page" />}>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/teams" element={<Teams />} />
+          <Route path="/teams/:teamId" element={<TeamDashboard />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </Router>
   )
 }

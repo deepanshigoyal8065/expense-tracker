@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import Modal from './Modal'
 import * as api from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
+import { useToast } from '../contexts/ToastContext'
 
 
 const ProfileSettings = ({ isOpen, onClose }) => {
-  const { user } = useSelector((state) => state.auth)
-  const dispatch = useDispatch()
+  const { user, updateUser } = useAuth()
+  const { addToast } = useToast()
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -16,15 +17,18 @@ const ProfileSettings = ({ isOpen, onClose }) => {
       setMessage('')
       const response = await api.updateProfile({ role: 'manager' })
       
-      // Update user in Redux state immediately
-      dispatch({ type: 'auth/loadUserSuccess', payload: { user: response.data } })
+      // Update user in auth context
+      updateUser(response.data)
       
       setMessage('✓ Successfully upgraded to Manager!')
+      addToast({ message: 'Successfully upgraded to Manager!', type: 'success' })
       setTimeout(() => {
         onClose()
       }, 800)
     } catch (error) {
-      setMessage('Error: ' + (error.response?.data?.error || error.message))
+      const errorMsg = error.response?.data?.error || error.message
+      setMessage('Error: ' + errorMsg)
+      addToast({ message: errorMsg, type: 'error' })
     } finally {
       setLoading(false)
     }

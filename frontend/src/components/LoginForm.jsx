@@ -1,12 +1,11 @@
 import { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
-import { loginRequest } from '../redux/auth/authSlice'
-import { addToast } from '../redux/toast/toastSlice'
+import { useAuth } from '../contexts/AuthContext'
+import { useToast } from '../contexts/ToastContext'
 
 const LoginForm = ({ onSwitchToSignup }) => {
-  const dispatch = useDispatch()
-  const { loading, error } = useSelector((state) => state.auth)
+  const { login, loading, error } = useAuth()
+  const { addToast } = useToast()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -18,13 +17,18 @@ const LoginForm = ({ onSwitchToSignup }) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!formData.email || !formData.password) {
-      dispatch(addToast({ message: 'Please fill all fields', type: 'error' }))
+      addToast({ message: 'Please fill all fields', type: 'error' })
       return
     }
-    dispatch(loginRequest(formData))
+    try {
+      await login(formData)
+      addToast({ message: 'Logged in successfully!', type: 'success' })
+    } catch (err) {
+      addToast({ message: err.message, type: 'error' })
+    }
   }
 
   return (

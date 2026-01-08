@@ -1,12 +1,11 @@
 import { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
-import { signupRequest } from '../redux/auth/authSlice'
-import { addToast } from '../redux/toast/toastSlice'
+import { useAuth } from '../contexts/AuthContext'
+import { useToast } from '../contexts/ToastContext'
 
 const SignupForm = ({ onSwitchToLogin }) => {
-  const dispatch = useDispatch()
-  const { loading, error } = useSelector((state) => state.auth)
+  const { signup, loading, error } = useAuth()
+  const { addToast } = useToast()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -21,29 +20,35 @@ const SignupForm = ({ onSwitchToLogin }) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
-      dispatch(addToast({ message: 'Please fill all fields', type: 'error' }))
+      addToast({ message: 'Please fill all fields', type: 'error' })
       return
     }
 
     if (formData.password.length < 6) {
-      dispatch(addToast({ message: 'Password must be at least 6 characters', type: 'error' }))
+      addToast({ message: 'Password must be at least 6 characters', type: 'error' })
       return
     }
 
     if (formData.password !== formData.confirmPassword) {
-      dispatch(addToast({ message: 'Passwords do not match', type: 'error' }))
+      addToast({ message: 'Passwords do not match', type: 'error' })
       return
     }
 
-    dispatch(signupRequest({
-      name: formData.name,
-      email: formData.email,
-      password: formData.password
-    }))
+    try {
+      await signup({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      })
+      addToast({ message: 'Account created successfully!', type: 'success' })
+    } catch (err) {
+      // Error is already set in context
+      addToast({ message: err.message, type: 'error' })
+    }
   }
 
   return (

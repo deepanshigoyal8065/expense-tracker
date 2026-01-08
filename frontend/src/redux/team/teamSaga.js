@@ -38,7 +38,6 @@ import {
   setTeamBudgetSuccess,
   setTeamBudgetFailure
 } from './teamSlice'
-import { addToast } from '../toast/toastSlice'
 
 // Fetch teams
 function* fetchTeamsSaga() {
@@ -47,7 +46,6 @@ function* fetchTeamsSaga() {
     yield put(fetchTeamsSuccess(teams))
   } catch (error) {
     yield put(fetchTeamsFailure(error.message))
-    yield put(addToast({ message: error.message, type: 'error' }))
   }
 }
 
@@ -56,10 +54,8 @@ function* createTeamSaga(action) {
   try {
     const team = yield call(api.createTeam, action.payload)
     yield put(createTeamSuccess(team))
-    yield put(addToast({ message: 'Team created successfully', type: 'success' }))
   } catch (error) {
     yield put(createTeamFailure(error.message))
-    yield put(addToast({ message: error.message, type: 'error' }))
   }
 }
 
@@ -70,7 +66,6 @@ function* getTeamSaga(action) {
     yield put(getTeamSuccess(team))
   } catch (error) {
     yield put(getTeamFailure(error.message))
-    yield put(addToast({ message: error.message, type: 'error' }))
   }
 }
 
@@ -80,10 +75,8 @@ function* updateTeamSaga(action) {
     const { teamId, data } = action.payload
     const team = yield call(api.updateTeam, teamId, data)
     yield put(updateTeamSuccess(team))
-    yield put(addToast({ message: 'Team updated successfully', type: 'success' }))
   } catch (error) {
     yield put(updateTeamFailure(error.message))
-    yield put(addToast({ message: error.message, type: 'error' }))
   }
 }
 
@@ -93,10 +86,8 @@ function* addMemberSaga(action) {
     const { teamId, userId, role } = action.payload
     const team = yield call(api.addTeamMember, teamId, userId, role)
     yield put(addMemberSuccess(team))
-    yield put(addToast({ message: 'Member added successfully', type: 'success' }))
   } catch (error) {
     yield put(addMemberFailure(error.message))
-    yield put(addToast({ message: error.message, type: 'error' }))
   }
 }
 
@@ -106,10 +97,8 @@ function* removeMemberSaga(action) {
     const { teamId, userId } = action.payload
     const team = yield call(api.removeTeamMember, teamId, userId)
     yield put(removeMemberSuccess(team))
-    yield put(addToast({ message: 'Member removed successfully', type: 'success' }))
   } catch (error) {
     yield put(removeMemberFailure(error.message))
-    yield put(addToast({ message: error.message, type: 'error' }))
   }
 }
 
@@ -121,7 +110,6 @@ function* fetchTeamExpensesSaga(action) {
     yield put(fetchTeamExpensesSuccess(expenses))
   } catch (error) {
     yield put(fetchTeamExpensesFailure(error.message))
-    yield put(addToast({ message: error.message, type: 'error' }))
   }
 }
 
@@ -131,13 +119,11 @@ function* addTeamExpenseSaga(action) {
     const { teamId, data } = action.payload
     const result = yield call(api.createTeamExpense, teamId, data)
     yield put(addTeamExpenseSuccess(result))
-    yield put(addToast({ message: 'Team expense added successfully', type: 'success' }))
     
     // Refresh summary
     yield put(getTeamSummaryRequest({ teamId }))
   } catch (error) {
     yield put(addTeamExpenseFailure(error.message))
-    yield put(addToast({ message: error.message, type: 'error' }))
   }
 }
 
@@ -147,13 +133,11 @@ function* updateTeamExpenseSaga(action) {
     const { teamId, expenseId, data } = action.payload
     const expense = yield call(api.updateTeamExpense, teamId, expenseId, data)
     yield put(updateTeamExpenseSuccess(expense))
-    yield put(addToast({ message: 'Team expense updated successfully', type: 'success' }))
     
     // Refresh summary
     yield put(getTeamSummaryRequest({ teamId }))
   } catch (error) {
     yield put(updateTeamExpenseFailure(error.message))
-    yield put(addToast({ message: error.message, type: 'error' }))
   }
 }
 
@@ -163,13 +147,11 @@ function* deleteTeamExpenseSaga(action) {
     const { teamId, expenseId } = action.payload
     yield call(api.deleteTeamExpense, teamId, expenseId)
     yield put(deleteTeamExpenseSuccess(expenseId))
-    yield put(addToast({ message: 'Team expense deleted successfully', type: 'success' }))
     
     // Refresh summary
     yield put(getTeamSummaryRequest({ teamId }))
   } catch (error) {
     yield put(deleteTeamExpenseFailure(error.message))
-    yield put(addToast({ message: error.message, type: 'error' }))
   }
 }
 
@@ -181,7 +163,6 @@ function* getTeamSummarySaga(action) {
     yield put(getTeamSummarySuccess(summary))
   } catch (error) {
     yield put(getTeamSummaryFailure(error.message))
-    yield put(addToast({ message: error.message, type: 'error' }))
   }
 }
 
@@ -191,13 +172,11 @@ function* setTeamBudgetSaga(action) {
     const { teamId, data } = action.payload
     const budget = yield call(api.setTeamBudget, teamId, data)
     yield put(setTeamBudgetSuccess(budget))
-    yield put(addToast({ message: 'Team budget set successfully', type: 'success' }))
     
     // Refresh summary to update budget display
     yield put(getTeamSummaryRequest({ teamId, month: data.month }))
   } catch (error) {
     yield put(setTeamBudgetFailure(error.message))
-    yield put(addToast({ message: error.message, type: 'error' }))
   }
 }
 

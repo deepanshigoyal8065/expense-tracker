@@ -17,7 +17,7 @@ const TeamList = ({ teams, onTeamClick }) => {
           onClick={() => onTeamClick && onTeamClick(team._id)}
           className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border border-gray-200"
         >
-          <h3 className="text-base sm:text-base sm:text-lg font-semibold text-gray-900 mb-2">{team.name}</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">{team.name}</h3>
           <p className="text-xs sm:text-sm text-gray-600 mb-3">{team.department}</p>
           {team.description && (
             <p className="text-xs sm:text-sm text-gray-500 mb-4 line-clamp-2">{team.description}</p>

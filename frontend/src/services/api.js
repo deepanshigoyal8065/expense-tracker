@@ -20,9 +20,9 @@ api.interceptors.request.use(
 )
 
 // Auth endpoints
-export const signup = (data) => axios.post(`${API_URL}/auth/signup`, data)
-export const login = (data) => axios.post(`${API_URL}/auth/login`, data)
-export const loadUser = () => api.get('/auth/me')
+export const signup = (data) => api.post('/auth/signup', data).then(res => res.data)
+export const login = (data) => api.post('/auth/login', data).then(res => res.data)
+export const loadUser = () => api.get('/auth/me').then(res => res.data)
 export const updateProfile = (data) => api.put('/auth/profile', data)
 export const searchUserByEmail = (email) => api.get('/auth/users/search', { params: { email } }).then(res => res.data)
 

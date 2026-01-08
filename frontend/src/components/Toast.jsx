@@ -1,20 +1,7 @@
-import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { removeToast } from '../redux/toast/toastSlice'
+import { useToast } from '../contexts/ToastContext'
 
 const Toast = () => {
-  const dispatch = useDispatch()
-  const toasts = useSelector((state) => state.toast.toasts)
-
-  useEffect(() => {
-    toasts.forEach((toast) => {
-      const timer = setTimeout(() => {
-        dispatch(removeToast(toast.id))
-      }, toast.duration)
-
-      return () => clearTimeout(timer)
-    })
-  }, [toasts, dispatch])
+  const { toasts, removeToast } = useToast()
 
   if (toasts.length === 0) return null
 
@@ -67,7 +54,7 @@ const Toast = () => {
           <div className="flex-shrink-0">{getIcon(toast.type)}</div>
           <p className="flex-1 font-medium">{toast.message}</p>
           <button
-            onClick={() => dispatch(removeToast(toast.id))}
+            onClick={() => removeToast(toast.id)}
             className="flex-shrink-0 text-white hover:text-gray-200 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

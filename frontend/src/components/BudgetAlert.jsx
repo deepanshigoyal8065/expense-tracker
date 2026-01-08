@@ -2,10 +2,11 @@ import { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 import { setBudgetRequest, fetchBudgetRequest, fetchAlertRequest } from '../redux/expense/expenseSlice'
-import { addToast } from '../redux/toast/toastSlice'
+import { useToast } from '../contexts/ToastContext'
 
 const BudgetAlert = ({ totalSpent: propTotalSpent, limit: propLimit, breached: propBreached }) => {
   const dispatch = useDispatch()
+  const { addToast } = useToast()
   const { budget: reduxBudget, alert: reduxAlert, currentMonth } = useSelector((state) => state.expense)
   const [budgetInput, setBudgetInput] = useState('')
   const [showForm, setShowForm] = useState(false)
@@ -32,24 +33,24 @@ const BudgetAlert = ({ totalSpent: propTotalSpent, limit: propLimit, breached: p
       
       if (wasNotExceeded && isNowExceeded) {
         // Show alert toast when budget is first exceeded
-        dispatch(addToast({
+        addToast({
           message: `🚨 ALERT! You have exceeded your monthly budget by ₹${(alert.totalSpent - alert.limit).toFixed(2)}!`,
           type: 'error',
           duration: 5000
-        }))
+        })
       }
     }
     prevAlertRef.current = alert
-  }, [alert, budget, dispatch])
+  }, [alert, budget, addToast])
 
   const handleSetBudget = (e) => {
     e.preventDefault()
     if (!budgetInput || parseFloat(budgetInput) <= 0) {
-      dispatch(addToast({ message: 'Please enter a valid budget amount', type: 'error' }))
+      addToast({ message: 'Please enter a valid budget amount', type: 'error' })
       return
     }
     dispatch(setBudgetRequest({ month: currentMonth, limit: parseFloat(budgetInput) }))
-    dispatch(addToast({ message: 'Budget set successfully!', type: 'success' }))
+    addToast({ message: 'Budget set successfully!', type: 'success' })
     setBudgetInput('')
     setShowForm(false)
   }

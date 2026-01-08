@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import ConfirmDialog from './ConfirmDialog'
+import VirtualList from './VirtualList'
+import { formatDate, getCategoryColor } from '../utils/formatters'
 
 const TeamExpenseList = ({ expenses, team, currentUser, onEdit, onDelete }) => {
   const [showConfirm, setShowConfirm] = useState(false)
@@ -27,6 +29,51 @@ const TeamExpenseList = ({ expenses, team, currentUser, onEdit, onDelete }) => {
     const creatorId = expense.createdBy?._id || expense.createdBy
     return isManager || creatorId?.toString() === userId?.toString()
   }
+
+  const renderExpenseRow = (expense) => (
+    <tr key={expense._id} className="hover:bg-gray-50">
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="text-sm font-medium text-gray-900">{expense.title}</div>
+        {expense.notes && (
+          <div className="text-sm text-gray-500">{expense.notes}</div>
+        )}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="text-sm font-semibold text-gray-900">
+          ₹{expense.amount.toFixed(2)}
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(expense.category)}`}>
+          {expense.category}
+        </span>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        {formatDate(expense.date)}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        {expense.createdBy?.name || 'Unknown'}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+        {canEdit(expense) && (
+          <div className="flex space-x-2">
+            <button
+              onClick={() => onEdit && onEdit(expense)}
+              className="text-blue-600 hover:text-blue-900"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => handleDeleteClick(expense)}
+              className="text-red-600 hover:text-red-900"
+            >
+              Delete
+            </button>
+          </div>
+        )}
+      </td>
+    </tr>
+  )
 
   if (!expenses || expenses.length === 0) {
     return (
@@ -61,53 +108,29 @@ const TeamExpenseList = ({ expenses, team, currentUser, onEdit, onDelete }) => {
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {expenses.map((expense) => (
-            <tr key={expense._id} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900">{expense.title}</div>
-                {expense.notes && (
-                  <div className="text-sm text-gray-500">{expense.notes}</div>
-                )}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-semibold text-gray-900">
-                  ₹{expense.amount.toFixed(2)}
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                  {expense.category}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {new Date(expense.date).toLocaleDateString()}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {expense.createdBy?.name || 'Unknown'}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                {canEdit(expense) && (
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => onEdit && onEdit(expense)}
-                      className="text-blue-600 hover:text-blue-900"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(expense)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
       </table>
+      {expenses.length > 15 ? (
+        <VirtualList
+          items={expenses}
+          itemHeight={72}
+          containerHeight={500}
+          renderItem={(expense) => (
+            <table className="min-w-full">
+              <tbody className="bg-white divide-y divide-gray-200">
+                {renderExpenseRow(expense)}
+              </tbody>
+            </table>
+          )}
+        />
+      ) : (
+        <div className="overflow-y-auto max-h-[500px]">
+          <table className="min-w-full">
+            <tbody className="bg-white divide-y divide-gray-200">
+              {expenses.map((expense) => renderExpenseRow(expense))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <ConfirmDialog
         isOpen={showConfirm}

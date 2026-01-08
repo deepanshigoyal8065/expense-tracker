@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { addExpenseRequest } from '../redux/expense/expenseSlice'
-import { addToast } from '../redux/toast/toastSlice'
+import { useToast } from '../contexts/ToastContext'
 
 const ExpenseForm = () => {
   const dispatch = useDispatch()
+  const { addToast } = useToast()
   const { currentMonth } = useSelector((state) => state.expense)
   const [formData, setFormData] = useState({
     title: '',
@@ -24,11 +25,11 @@ const ExpenseForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!formData.title || !formData.amount || !formData.category || !formData.date) {
-      dispatch(addToast({ message: 'Please fill all required fields', type: 'error' }))
+      addToast({ message: 'Please fill all required fields', type: 'error' })
       return
     }
     dispatch(addExpenseRequest({ ...formData, amount: parseFloat(formData.amount) }))
-    dispatch(addToast({ message: 'Expense added successfully!', type: 'success' }))
+    addToast({ message: 'Expense added successfully!', type: 'success' })
     setFormData({
       title: '',
       amount: '',
