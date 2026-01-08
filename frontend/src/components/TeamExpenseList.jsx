@@ -1,6 +1,18 @@
 import { useState } from 'react'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  Button,
+  Box,
+  Typography
+} from '@mui/material'
 import ConfirmDialog from './ConfirmDialog'
-import VirtualList from './VirtualList'
 import { formatDate, getCategoryColor } from '../utils/formatters'
 
 const TeamExpenseList = ({ expenses, team, currentUser, onEdit, onDelete }) => {
@@ -31,89 +43,90 @@ const TeamExpenseList = ({ expenses, team, currentUser, onEdit, onDelete }) => {
   }
 
   const renderExpenseRow = (expense) => (
-    <tr key={expense._id} className="hover:bg-gray-50">
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm font-medium text-gray-900">{expense.title}</div>
+    <TableRow key={expense._id} hover>
+      <TableCell>
+        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+          {expense.title}
+        </Typography>
         {expense.notes && (
-          <div className="text-sm text-gray-500">{expense.notes}</div>
+          <Typography variant="caption" color="text.secondary">
+            {expense.notes}
+          </Typography>
         )}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm font-semibold text-gray-900">
+      </TableCell>
+      <TableCell>
+        <Typography variant="body2" sx={{ fontWeight: 600 }}>
           ₹{expense.amount.toFixed(2)}
-        </div>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(expense.category)}`}>
-          {expense.category}
-        </span>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {formatDate(expense.date)}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {expense.createdBy?.name || 'Unknown'}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+        </Typography>
+      </TableCell>
+      <TableCell>
+        <Chip
+          label={expense.category}
+          size="small"
+          className={getCategoryColor(expense.category)}
+        />
+      </TableCell>
+      <TableCell>
+        <Typography variant="body2" color="text.secondary">
+          {formatDate(expense.date)}
+        </Typography>
+      </TableCell>
+      <TableCell>
+        <Typography variant="body2" color="text.secondary">
+          {expense.createdBy?.name || 'Unknown'}
+        </Typography>
+      </TableCell>
+      <TableCell>
         {canEdit(expense) && (
-          <div className="flex space-x-2">
-            <button
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              size="small"
               onClick={() => onEdit && onEdit(expense)}
-              className="text-blue-600 hover:text-blue-900"
+              sx={{ textTransform: 'none' }}
             >
               Edit
-            </button>
-            <button
+            </Button>
+            <Button
+              size="small"
+              color="error"
               onClick={() => handleDeleteClick(expense)}
-              className="text-red-600 hover:text-red-900"
+              sx={{ textTransform: 'none' }}
             >
               Delete
-            </button>
-          </div>
+            </Button>
+          </Box>
         )}
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 
   if (!expenses || expenses.length === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-lg shadow">
-        <p className="text-gray-500">No team expenses found</p>
-      </div>
+      <Paper elevation={1} sx={{ textAlign: 'center', py: 6 }}>
+        <Typography color="text.secondary">No team expenses found</Typography>
+      </Paper>
     )
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Title
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Amount
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Category
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Date
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Created By
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+    <Box>
+      <TableContainer component={Paper} elevation={1}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 600 }}>Title</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Category</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Created By</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {expenses.map((expense) => renderExpenseRow(expense))}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       <ConfirmDialog
         isOpen={showConfirm}
@@ -122,7 +135,7 @@ const TeamExpenseList = ({ expenses, team, currentUser, onEdit, onDelete }) => {
         title="Delete Expense"
         message={`Are you sure you want to delete "${expenseToDelete?.title}"?`}
       />
-    </div>
+    </Box>
   )
 }
 
