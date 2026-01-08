@@ -30,11 +30,12 @@ const BudgetAlert = ({ totalSpent: propTotalSpent, limit: propLimit, breached: p
     if (alert && budget && alert.breached) {
       const wasNotExceeded = prevAlertRef.current === null || !prevAlertRef.current.breached
       const isNowExceeded = alert.breached
+      const exceededAmount = alert.totalSpent - alert.limit
       
-      if (wasNotExceeded && isNowExceeded) {
-        // Show alert toast when budget is first exceeded
+      if (wasNotExceeded && isNowExceeded && exceededAmount > 0) {
+        // Show alert toast when budget is first exceeded (only if exceeded amount > 0)
         addToast({
-          message: `🚨 ALERT! You have exceeded your monthly budget by ₹${(alert.totalSpent - alert.limit).toFixed(2)}!`,
+          message: `🚨 ALERT! You have exceeded your monthly budget by ₹${exceededAmount.toFixed(2)}!`,
           type: 'error',
           duration: 5000
         })
@@ -118,7 +119,7 @@ const BudgetAlert = ({ totalSpent: propTotalSpent, limit: propLimit, breached: p
             <div className="text-right text-sm text-gray-600 mt-1">{percentage.toFixed(1)}%</div>
           </div>
 
-          {isOverLimit && (
+          {isOverLimit && alert.totalSpent - budget.limit > 0 && (
             <div className="bg-red-50 border-2 border-red-500 rounded-md p-4 animate-blink shadow-lg">
               <div className="flex items-center gap-3">
                 <span className="text-3xl animate-pulse-custom">🚨</span>
