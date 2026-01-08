@@ -28,13 +28,8 @@ const Dashboard = () => {
     dispatch(setCurrentMonth(e.target.value))
   }
 
-  const handleLogoutClick = () => {
-    setShowLogoutConfirm(true)
-  }
-
   const handleConfirmLogout = () => {
     setShowLogoutConfirm(false)
-    onLogout()
   }
 
   return (
