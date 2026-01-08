@@ -150,38 +150,14 @@ const TeamDashboard = () => {
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
       <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{currentTeam?.name || 'Team'}</h1>
-              <p className="text-gray-600 mt-1">{currentTeam?.department || ''}</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{currentTeam?.name || 'Team'}</h1>
+              <p className="text-sm sm:text-base text-gray-600 mt-1">{currentTeam?.department || ''}</p>
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => navigate('/teams')}
-                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Back to Teams
-              </button>
-              <button
-                onClick={() => navigate('/')}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                Dashboard
-              </button>
-              <input
-                type="month"
-                value={currentMonth}
-                onChange={handleMonthChange}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <div className="relative ml-2" ref={dropdownRef}>
+            <div className="flex flex-col items-stretch sm:items-end gap-3">
+              <div className="relative self-end" ref={dropdownRef}>
                 <button
                   onMouseEnter={() => setShowProfileDropdown(true)}
                   className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold flex items-center justify-center hover:from-blue-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
@@ -215,17 +191,43 @@ const TeamDashboard = () => {
                   </div>
                 )}
               </div>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <button
+                  onClick={() => navigate('/teams')}
+                  className="w-full sm:w-auto px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  <span>Back to Teams</span>
+                </button>
+                <button
+                  onClick={() => navigate('/')}
+                  className="w-full sm:w-auto px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  <span>Dashboard</span>
+                </button>
+                <input
+                  type="month"
+                  value={currentMonth}
+                  onChange={handleMonthChange}
+                  className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                />
+              </div>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
 
         {/* Budget Alert */}
         {alertData && (
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <BudgetAlert
               totalSpent={alertData.totalSpent}
               limit={alertData.limit}
@@ -235,38 +237,38 @@ const TeamDashboard = () => {
         )}
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-gray-500">Total Spent</h3>
-            <p className="mt-2 text-3xl font-bold text-gray-900">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+            <h3 className="text-xs sm:text-sm font-medium text-gray-500">Total Spent</h3>
+            <p className="mt-2 text-xl sm:text-3xl font-bold text-gray-900">
               ₹{teamSummary?.totalSpent?.toFixed(2) || '0.00'}
             </p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-gray-500">Budget</h3>
-            <p className="mt-2 text-3xl font-bold text-blue-600">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+            <h3 className="text-xs sm:text-sm font-medium text-gray-500">Budget</h3>
+            <p className="mt-2 text-xl sm:text-3xl font-bold text-blue-600">
               ₹{teamSummary?.budget?.toFixed(2) || '0.00'}
             </p>
             {isManager && (
               <button
                 onClick={() => setShowBudgetForm(!showBudgetForm)}
-                className="mt-2 text-sm text-blue-600 hover:text-blue-800"
+                className="mt-2 text-xs sm:text-sm text-blue-600 hover:text-blue-800"
               >
                 Set Budget
               </button>
             )}
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-gray-500">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+            <h3 className="text-xs sm:text-sm font-medium text-gray-500">
               {(teamSummary?.remaining ?? 0) >= 0 ? 'Remaining' : 'Overused'}
             </h3>
-            <p className={`mt-2 text-3xl font-bold ${(teamSummary?.remaining ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`mt-2 text-xl sm:text-3xl font-bold ${(teamSummary?.remaining ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               ₹{teamSummary?.remaining !== undefined ? (teamSummary.remaining >= 0 ? teamSummary.remaining.toFixed(2) : Math.abs(teamSummary.remaining).toFixed(2)) : '0.00'}
             </p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-gray-500">Expenses</h3>
-            <p className="mt-2 text-3xl font-bold text-gray-900">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+            <h3 className="text-xs sm:text-sm font-medium text-gray-500">Expenses</h3>
+            <p className="mt-2 text-xl sm:text-3xl font-bold text-gray-900">
               {teamSummary?.expenseCount || 0}
             </p>
           </div>

@@ -64,9 +64,9 @@ const BudgetAlert = ({ totalSpent: propTotalSpent, limit: propLimit, breached: p
   const isOverLimit = percentage >= 100
 
   return (
-    <div className={`bg-white p-6 rounded-lg shadow-md transition-all ${isOverLimit ? 'animate-blink border-4 border-red-600' : ''}`}>
+    <div className={`bg-white p-4 sm:p-6 rounded-lg shadow-md transition-all ${isOverLimit ? 'animate-blink border-4 border-red-600' : ''}`}>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-800">Monthly Budget</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Monthly Budget</h2>
         {!isTeamMode && (
           <button
             onClick={() => setShowForm(!showForm)}

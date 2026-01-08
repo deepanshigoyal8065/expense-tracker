@@ -44,9 +44,9 @@ const ExpenseList = () => {
   }
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
+    <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-800">Recent Expenses</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Recent Expenses</h2>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="text-gray-600 hover:text-gray-900 transition-colors"
@@ -67,20 +67,20 @@ const ExpenseList = () => {
         {expenses.map((expense) => (
           <div
             key={expense._id}
-            className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors gap-2"
           >
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-1">
-                <h3 className="font-semibold text-gray-800">{expense.title}</h3>
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <h3 className="font-semibold text-gray-800 text-sm sm:text-base">{expense.title}</h3>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(expense.category)}`}>
                   {expense.category}
                 </span>
               </div>
-              <p className="text-sm text-gray-500">{formatDate(expense.date)}</p>
-              {expense.notes && <p className="text-sm text-gray-600 mt-1">{expense.notes}</p>}
+              <p className="text-xs sm:text-sm text-gray-500">{formatDate(expense.date)}</p>
+              {expense.notes && <p className="text-xs sm:text-sm text-gray-600 mt-1">{expense.notes}</p>}
             </div>
-            <div className="text-right">
-              <p className="text-xl font-bold text-gray-900">₹{expense.amount.toFixed(2)}</p>
+            <div className="text-right sm:text-left">
+              <p className="text-lg sm:text-xl font-bold text-gray-900">₹{expense.amount.toFixed(2)}</p>
             </div>
           </div>
         ))}

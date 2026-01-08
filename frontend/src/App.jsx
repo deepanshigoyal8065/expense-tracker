@@ -1,5 +1,3 @@
-
-
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
@@ -52,11 +50,11 @@ function App() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Expense Tracker</h1>
-            <p className="text-gray-600">Track your expenses, manage your budget</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4 overflow-x-hidden">
+        <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6 sm:p-8">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Expense Tracker</h1>
+            <p className="text-sm sm:text-base text-gray-600">Track your expenses, manage your budget</p>
           </div>
 
           {authMode === 'login' ? (

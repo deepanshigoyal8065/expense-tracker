@@ -53,27 +53,27 @@ const Charts = ({ summary: propSummary }) => {
   }))
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">Category Reports</h2>
+    <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+      <h2 className="text-xl sm:text-2xl font-bold mb-4 text-gray-800">Category Reports</h2>
       
-      <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-        <p className="text-sm text-gray-600">Total Spending{propSummary ? '' : ` for ${currentMonth}`}</p>
-        <p className="text-3xl font-bold text-blue-600">₹{summary.totalSpent?.toFixed(2) || '0.00'}</p>
+      <div className="mb-4 sm:mb-6 p-4 bg-blue-50 rounded-lg">
+        <p className="text-xs sm:text-sm text-gray-600">Total Spending{propSummary ? '' : ` for ${currentMonth}`}</p>
+        <p className="text-2xl sm:text-3xl font-bold text-blue-600">₹{summary.totalSpent?.toFixed(2) || '0.00'}</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Pie Chart */}
-        <div>
-          <h3 className="text-lg font-semibold mb-3 text-gray-700">Spending Distribution</h3>
-          <ResponsiveContainer width="100%" height={450}>
-            <PieChart margin={{ top: 0, right: 120, bottom: 30, left: 120 }}>
+        <div className="min-h-[300px] sm:min-h-[400px]">
+          <h3 className="text-base sm:text-lg font-semibold mb-3 text-gray-700">Spending Distribution</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart margin={{ top: 0, right: 20, bottom: 20, left: 20 }}>
               <Pie
                 data={pieData}
-                cx="40%"
+                cx="50%"
                 cy="50%"
-                labelLine={true}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                outerRadius={90}
+                labelLine={false}
+                label={({ name, percent }) => window.innerWidth > 640 ? `${name}: ${(percent * 100).toFixed(0)}%` : `${(percent * 100).toFixed(0)}%`}
+                outerRadius={window.innerWidth > 640 ? 90 : 70}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -87,10 +87,10 @@ const Charts = ({ summary: propSummary }) => {
         </div>
 
         {/* Bar Chart */}
-        <div>
-          <h3 className="text-lg font-semibold mb-3 text-gray-700">Category Breakdown</h3>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={barData} margin={{ top: 20, right: 30, bottom: 80, left: 20 }}>
+        <div className="min-h-[300px] sm:min-h-[400px]">
+          <h3 className="text-base sm:text-lg font-semibold mb-3 text-gray-700">Category Breakdown</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={barData} margin={{ top: 20, right: 10, bottom: 60, left: 10 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="category" angle={-45} textAnchor="end" height={80} />
               <YAxis />
@@ -108,32 +108,36 @@ const Charts = ({ summary: propSummary }) => {
       </div>
 
       {/* Category Details Table */}
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-3 text-gray-700">Detailed Breakdown</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="p-3 font-semibold text-gray-700 border-b">Category</th>
-                <th className="p-3 font-semibold text-gray-700 border-b">Amount</th>
-                <th className="p-3 font-semibold text-gray-700 border-b">Transactions</th>
-                <th className="p-3 font-semibold text-gray-700 border-b">% of Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((cat, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="p-3 border-b">
-                    <span className={`inline-block w-3 h-3 rounded-full mr-2`} style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
-                    {cat.category}
-                  </td>
-                  <td className="p-3 border-b font-medium">₹{cat.total.toFixed(2)}</td>
-                  <td className="p-3 border-b">{cat.count}</td>
-                  <td className="p-3 border-b">{((cat.total / summary.totalSpent) * 100).toFixed(1)}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="mt-4 sm:mt-6">
+        <h3 className="text-base sm:text-lg font-semibold mb-3 text-gray-700">Detailed Breakdown</h3>
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <div className="overflow-hidden">
+              <table className="min-w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-b whitespace-nowrap">Category</th>
+                    <th className="p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-b whitespace-nowrap">Amount</th>
+                    <th className="p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-b whitespace-nowrap">Trans.</th>
+                    <th className="p-2 sm:p-3 text-xs sm:text-sm font-semibold text-gray-700 border-b whitespace-nowrap">% Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categories.map((cat, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="p-2 sm:p-3 border-b text-xs sm:text-sm whitespace-nowrap">
+                        <span className={`inline-block w-3 h-3 rounded-full mr-2`} style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
+                        {cat.category}
+                      </td>
+                      <td className="p-2 sm:p-3 border-b font-medium text-xs sm:text-sm whitespace-nowrap">₹{cat.total.toFixed(2)}</td>
+                      <td className="p-2 sm:p-3 border-b text-xs sm:text-sm">{cat.count}</td>
+                      <td className="p-2 sm:p-3 border-b text-xs sm:text-sm">{((cat.total / summary.totalSpent) * 100).toFixed(1)}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>

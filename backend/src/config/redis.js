@@ -1,7 +1,7 @@
 import { createClient } from 'redis'
 import { env } from './env.js'
 
-let client
+let client  = null    
 
 export const getRedisClient = () => {
   if (!client) {
@@ -11,3 +11,4 @@ export const getRedisClient = () => {
   }
   return client
 }
+ 
