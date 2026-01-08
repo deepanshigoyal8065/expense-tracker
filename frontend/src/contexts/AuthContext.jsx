@@ -6,22 +6,26 @@ const AuthContext = createContext(null)
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Clear any existing token on mount to ensure fresh login
+  // Load user on mount if token exists
   useEffect(() => {
-    localStorage.removeItem('token')
-    setUser(null)
-    setLoading(false)
+    const token = localStorage.getItem('token')
+    if (token) {
+      loadUser()
+    } else {
+      setLoading(false)
+    }
   }, [])
 
   const loadUser = async () => {
     try {
       setLoading(true)
       setError(null)
-      const userData = await apiLoadUser()
-      setUser(userData)
+      const response = await apiLoadUser()
+      // API returns { user: {...} }
+      setUser(response.user || response)
     } catch (err) {
       console.error('Failed to load user:', err)
       localStorage.removeItem('token')
