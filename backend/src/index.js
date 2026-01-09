@@ -13,7 +13,12 @@ const app = express()
 
 // Middleware
 app.use(morgan('dev'))
-app.use(cors({ origin: env.corsOrigins }))
+app.use(cors({
+  origin: env.corsOrigins,
+  credentials: true
+}))
+app.options("*", cors())
+
 app.use(express.json())
 
 // Routes
